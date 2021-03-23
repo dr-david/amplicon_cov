@@ -8,7 +8,7 @@ Optionally outputs plots.
 
 If we want to analyze coverage of samples in batch HY53JDRXX, with primers info in 'articV3primers.bed', we first need to create a tsv list of samples:
 
-```grep 20210122_HY53JDRXX /cluster/project/pangolin/working/samples.tsv > amples20210122_HY53JDRXX.tsv```
+```grep 20210122_HY53JDRXX /cluster/project/pangolin/working/samples.tsv > samples20210122_HY53JDRXX.tsv```
 
 Then to compute coverages while plotting and with verbose, outputting into '20210122out' (I think you need to create directory first):
 
