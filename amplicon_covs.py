@@ -204,6 +204,7 @@ def main():
     #         all_covs.append([])
         i += 1
     all_covs = pd.concat(all_covs, axis=0)
+    all_covs = all_covs.reset_index(drop=True)
     all_covs_frac = all_covs / all_covs.sum(axis=1)
     all_covs = pd.concat([pd.DataFrame({"sample":indexes}), all_covs.reset_index(drop=True)], axis=1, ignore_index=False)
 #    all_covs.set_index(pd.Index(indexes))
