@@ -102,12 +102,12 @@ def get_amplicon_cov(cov_df, start, stop, length=20):
     return np.median(amplicon_slice)
 
 
-def get_frac_reads(cov_df, amplicons_df):
-    '''function to return estimated fraction of the reads in cov_df aligned in each query window of the amplicon df'''
+def get_count_reads(cov_df, amplicons_df):
+    '''function to return estimated count of the reads in cov_df aligned in each query window of the amplicon df'''
     cov = amplicons_df.apply(lambda x: get_amplicon_cov(cov_df, x["query_start"], x["query_end"]), axis=1)
-    frac_reads = cov / np.sum(cov)
+#     frac_reads = cov / np.sum(cov)
 
-    return frac_reads
+    return cov
 
 
 def make_cov_heatmap(cov_df, output=None):
@@ -196,7 +196,7 @@ def main():
         if args.v: print("Parsing coverage file {}/{}".format(i, len(sam_list)), end="\r")
         try:
             temp_cov_df = pd.read_csv(sam, sep="\t", compression="gzip")
-            temp_frac_read_df = pd.DataFrame(get_frac_reads(temp_cov_df, amplicons_df)).T
+            temp_frac_read_df = pd.DataFrame(get_count_reads(temp_cov_df, amplicons_df)).T
             indexes.append(sam.split("/")[-4])
             all_covs.append(temp_frac_read_df)
         except FileNotFoundError:
@@ -204,12 +204,15 @@ def main():
     #         all_covs.append([])
         i += 1
     all_covs = pd.concat(all_covs, axis=0)
+    all_covs_frac = all_covs / all_covs.sum(axis=1)
     all_covs = pd.concat([pd.DataFrame({"sample":indexes}), all_covs.reset_index(drop=True)], axis=1, ignore_index=False)
 #    all_covs.set_index(pd.Index(indexes))
+    all_covs_frac = pd.concat([pd.DataFrame({"sample":indexes}), all_covs_frac.reset_index(drop=True)], axis=1, ignore_index=False)
     
     # output DF
-    if args.v: print("\nOutputting csv.")
+    if args.v: print("\nOutputting .csv's")
     all_covs.to_csv(outdir + "/amplicons_coverages.csv", index = False)
+    all_covs_frac.to_csv(outdir + "/amplicons_coverages_norm.csv", index = False)
 
     # make plots
     if args.makeplots: 
@@ -218,6 +221,10 @@ def main():
         make_cov_heatmap(all_covs, outdir + "/cov_heatmap.pdf")
         make_median_cov_hist(all_covs, outdir + "/median_cov_hist.pdf")
         make_median_coverage_barplot(all_covs, outdir + "/median_coverage_barplot.pdf")
+
+        make_cov_heatmap(all_covs_frac, outdir + "/cov_heatmap_norm.pdf")
+        make_median_cov_hist(all_covs_frac, outdir + "/median_cov_hist_norm.pdf")
+        make_median_coverage_barplot(all_covs_frac, outdir + "/median_coverage_barplot_norm.pdf")
 
 
 
