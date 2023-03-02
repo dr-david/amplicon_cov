@@ -49,7 +49,7 @@ def load_bedfile(bed="articV3primers.bed"):
     bedfile = pd.read_table(bed, header=None)
     bedfile["sense"] = [re.search("(LEFT|RIGHT)",i).group(1) for i in bedfile[3]]
     bedfile["primer_num"] = [int(re.search("_([0-9]+)_",i).group(1)) for i in bedfile[3]]
-    bedfile["pool"] = [int(re.search("_([1-2])",i).group(1)) for i in bedfile[4]]
+    bedfile["pool"] = [int(re.search("([1-2])$",i).group(1)) for i in bedfile[4].astype("str")]
     bedfile = bedfile[[re.search("alt", i) is None for i in bedfile[3]]]
     # bedfile["alt"] = [re.search("(_alt[0-9]+)", i).group(1) if re.search("(_alt[0-9]+)", i) is not None else " " for i in bedfile[3]]
     # bedfile["primer_code"] = bedfile["primer_num"].astype(str) + bedfile["alt"]
